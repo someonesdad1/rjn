@@ -14,14 +14,14 @@ which use up a lot of space.  If I were you, I would create another github
 repository to store all my source documents and bitmaps.  Then, when I
 created new content, the PDFs would be updated and an automated tool would
 copy the updated PDFs to this PDF repository.  You'd check the new files in
-and users would be able to see all the versions of the PDFs you've created
-with no version naming in the file, which is an error-prone way of keeping
-track of things.
+and users would be able to see all the versions of the PDFs you've created.
 
-It remains to be seen whether github will continue to allow a person to
-create free repositories like this that can consume 100 MB of space (that's
-what your files currently use on my computer).  In other words, for large
-enough storage requirements, they may charge a fee for storage.  The page
-https://github.com/pricing shows on 30 Sep 2023 that a public repository
-can use up to 500 MB of space -- and that may be enough.  You could get 2
-GB for $50/year.
+github allows free projects to keep up to 500 MB of stuff.  If your stuff
+needs more space, $50/year gits 2 GB of space.
+
+My guess is that you won't want to put all your source code stuff in the
+online git repository -- only the resultant PDF files (or bitmaps, etc.)
+need to be put there.  Then 500 MB likely would be enough to store all your
+PDF stuff for public consumption.  You'd maintain the source code files on
+your computer in a big git repository, but it wouldn't need to be backed up
+in the cloud.
