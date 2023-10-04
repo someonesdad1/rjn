@@ -1,6 +1,9 @@
-HP12C_Notes.pdf
+¶HP12C_Notes.pdf
 
+    # You shouldn't see this line in the output
     Short document on the calculation of annual percentage rate (APR) in
     loans.  The HP-12C business calculator became the gold standard for
     calculating APR.
+      
+    Another line
 

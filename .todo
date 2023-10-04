@@ -1,0 +1,21 @@
+TODO
+    - build.py
+        - Remove /plib dependencies
+
+- Architecture
+    - git repository for the PDF files
+    - Set of directories containing the PDF file
+    - Only content at top is README.md and tools
+    - External populating tool for each PDF directory:
+        - The PDF files are copied into the repository by an external tool
+        - Each directory gets an index.txt file that is used to
+            describe the directory's contents
+        - index.txt format
+            - Non-indented line = name of PDF file
+            - Indented lines below this = description of file
+            - Gets turned into index.html for that directory
+- Python script build.py builds the HTML interface for users each times
+  it's run
+    - index.html in the main repository directory
+    - One index.html file in each subdirectory containing PDF files (these
+      directories need to be manually entered into the build.py script)

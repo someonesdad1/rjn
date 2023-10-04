@@ -1,33 +1,23 @@
-
 '''
+ 
+TODO
+    - Remove /plib dependencies
+ 
 Construct the rjn prototype github repository components
-
+ 
 This script will enter each directory and construct the index.html file in
 it from the index.txt file in the directory.  The index.txt file must have
 the following form:
-
+ 
 x1.pdf       # Name of PDF file
-    description description description description description
-    description description description description description
-    description description description description description
-    description description description description description
-
-    description description description description description
-    description description description description description
-    description description description description description
+    File's description text is indented under the file name
 x2.pdf       # Name of PDF file
-    description description description description description
-    description description description description description
-    description description description description description
+    File's description text is indented under the file name
 etc.
-
+ 
 where the indentation defines the file name and description text.
-Python-style comments can be used if desired.
-
-While make could be a more efficient tool, a python script will be fast
-enough even with hundreds of PDF files, as it's elementary text processing
-and the task doesn't need to be done frequently.
-
+Any line beginning with optional whitespace and '#' is ignored as a
+comment.
 '''
 if 1:   # Header
     if 1:   # Standard imports
@@ -36,13 +26,22 @@ if 1:   # Header
         from pathlib import Path as P
         import sys
         from pprint import pprint as pp
+        from textwrap import dedent
+        from collections import deque
+        from textwrap import dedent
     if 1:   # Custom imports
-        from wrap import dedent
-        from get import GetLines
+        #from get import GetLines
+        from color import t
+        from lwtest import Assert
+        if 1:
+            import debug
+            debug.SetDebugger()
     if 1:   # Global variables
         ii = isinstance
         W = int(os.environ.get("COLUMNS", "80")) - 1
         L = int(os.environ.get("LINES", "50"))
+        t.dbg = t("skyl")
+
         class G:
             pass
         g = G()     # Container for global variables
@@ -51,9 +50,12 @@ if 1:   # Header
             P("components"),
             P("measurement"),
         )
+        g.sep = "¶"   # Separator for index.txt entries (pilcrow, chr(0xb6)
         g.top_readme = P("README.md")
+        g.index = "index.html"  # Directory's HTML file
         # Output variables.  The index_files variable will be a list
         # of links to the subdirectory's index file.
+        g.index_files = []
 if 1:   # Utility
     def Error(*msg, status=1):
         print(*msg, file=sys.stderr)
@@ -68,7 +70,6 @@ if 1:   # Utility
         exit(status)
     def ParseCommandLine(d):
         d["-d"] = False     # Debug output
-        d["-d"] = True  # xx
         try:
             opts, args = getopt.getopt(sys.argv[1:], "d")
         except getopt.GetoptError as e:
@@ -80,27 +81,100 @@ if 1:   # Utility
         if 0 and not args:
             Usage()
         return args
+if 1:   # Classes
+    class Doc:
+        '''Contain a PDF document's information for HTML generation.  Print
+        the instance to get a suitable HTML output form.
+        '''
+        def __init__(self, content, dir):
+            '''content is a multiline string containing the PDF file name
+            on the first line and the file's description on the remaining 
+            lines.
+            '''
+            dq = deque(content.split("\n"))
+            Assert(len(dq) > 1)
+            # Get PDF file's name
+            self.dir = dir
+            self.filename = dq.popleft().strip()
+            # Make sure it exists
+            self.file = dir/self.filename
+            Assert(P(self.file.name).exists())
+            # Remove empty lines
+            while dq:
+                line = dq[0].strip()
+                if not line or line[0] == "#":
+                    dq.popleft()
+                else:
+                    break
+            # Get file's description's lines
+            Assert(dq)
+            self.descr = deque()
+            while dq:
+                self.descr.append(dq.popleft())
+            # Remove empty ending lines
+            while self.descr:
+                line = self.descr[-1].strip()
+                if not line or line[0] == "#":
+                    self.descr.pop()
+                else:
+                    break
+            # Make sure we have at least one line
+            Assert(self.descr)
+            Dbg(f"PDF file:  {self.filename}")
+            Dbg(f"Description:")
+            for i in self.descr:
+                Dbg(f"{i}")
+        def __str__(self):
+            output = [""]
+            url = g.rootdir/self.file
+            output.append(f'<a href="{url}">{self.filename}</a>')
+            output.append(f"<br>")
+            for i in self.descr:
+                if i.strip():
+                    output.append(f"{i}")
+                else:
+                    output.append(f"<br>")
+            output.append(f"<br>")
+            return '\n'.join(output)
+
 if 1:   # Core functionality
-    def GetText(file):
-        "file should be an index.txt file's contents"
-        lines = GetLines(file)
-        pp(lines) #xx
-        exit() #xx
-    def ProcessDirectory(dir):
-        file = dir/"index.txt"
-        output = dir/"index.html"
+    def Dbg(line):
         if d["-d"]:
-            print(f"Processing {dir}")
-            print(f"  rootdir = {g.rootdir}")
-            print(f"  dir = {dir}")
-            print(f"  file = {file}")
-            print(f"  output = {output}")
-        lines = GetText(file)
+            t.print(f"{t.dbg}+ {line}")
+    def ProcessDirectory(dir):
+        # dir is a pathlib.Path
+        cwd = os.getcwd()
+        os.chdir(dir)
+        Dbg(f"Processing {dir} directory")
+        # Get index.txt file's content as a string
+        s = open("index.txt").read()
+        # Open the output file
+        o = open("index.html", "w")
+        o.write(dedent(f'''
+        <!DOCTYPE html>
+        <html>
+        <head><title>Directory {dir}</title></head>
+        <body>
+        '''))
+        # Separate into each PDF file's chunks
+        items = s.split(g.sep)
+        for item in items:
+            if item.strip():
+                doc = Doc(item, dir)
+                o.write(str(doc))
+                o.write("\n")
+        o.write(dedent(f'''
+        </body>
+        </html>
+        '''))
+        o.close()
+        os.chdir(cwd)
 
 if __name__ == "__main__":
     d = {}      # Options dictionary
     args = ParseCommandLine(d)
     g.rootdir = P(os.getcwd())
+    Dbg("Lines beginning with '+' are debug lines enabled by -d option")
+    Dbg(f"rootdir = {g.rootdir}")
     for dir in g.directories_to_process:
-        # dir is a pathlib.Path
         ProcessDirectory(dir)
