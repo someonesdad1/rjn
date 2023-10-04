@@ -141,6 +141,18 @@ if 1:   # Core functionality
     def Dbg(line):
         if d["-d"]:
             t.print(f"{t.dbg}+ {line}")
+    def HTML_header(title):
+        return dedent(f'''
+        <!DOCTYPE html>
+        <html>
+        <head><title>Directory {title}</title></head>
+        <body>
+        ''')
+    def HTML_footer():
+        return dedent(f'''
+        </body>
+        </html>
+        ''')
     def ProcessDirectory(dir):
         # dir is a pathlib.Path
         cwd = os.getcwd()
@@ -150,12 +162,7 @@ if 1:   # Core functionality
         s = open("index.txt").read()
         # Open the output file
         o = open("index.html", "w")
-        o.write(dedent(f'''
-        <!DOCTYPE html>
-        <html>
-        <head><title>Directory {dir}</title></head>
-        <body>
-        '''))
+        o.write(HTML_header("Directory: {dir}"))
         # Separate into each PDF file's chunks
         items = s.split(g.sep)
         for item in items:
@@ -163,18 +170,28 @@ if 1:   # Core functionality
                 doc = Doc(item, dir)
                 o.write(str(doc))
                 o.write("\n")
-        o.write(dedent(f'''
-        </body>
-        </html>
-        '''))
+        o.write(HTML_footer())
         o.close()
         os.chdir(cwd)
+    def MakeRootHTMLFile():
+        os.chdir(basedir)
+        o = open("index.html", "w")
+        o.write(HTML_header("RJN's PDF documents"))
+        o.write(dedent(f'''
+        Click on the links to see each directory's index file<br><br>
+        '''))
+        for dir in g.directories_to_process:
+            o.write(f'<a href="{dir}/index.html">{dir}</a><br>\n')
+        o.write(HTML_footer())
+        o.close()
 
 if __name__ == "__main__":
     d = {}      # Options dictionary
+    basedir = os.getcwd()
     args = ParseCommandLine(d)
     g.rootdir = P(os.getcwd())
     Dbg("Lines beginning with '+' are debug lines enabled by -d option")
     Dbg(f"rootdir = {g.rootdir}")
     for dir in g.directories_to_process:
         ProcessDirectory(dir)
+    MakeRootHTMLFile()
