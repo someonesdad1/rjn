@@ -42,7 +42,7 @@ if 1:   # Header
         W = int(os.environ.get("COLUMNS", "80")) - 1
         L = int(os.environ.get("LINES", "50"))
         t.dbg = t("skyl")
-
+        t.dir = t("ornl")
         class G:
             pass
         g = G()     # Container for global variables
@@ -67,6 +67,9 @@ if 1:   # Utility
           Build the readme and html files.  cmd is:
             b   Build
             n   Dry run (show what will happen), notify about missing stuff
+
+          Note:  build and dry run don't work yet; the only things done are
+          stop on a missing file and create the HTML files.
         Options
             -d  Debug output
         ''').strip()
@@ -164,7 +167,7 @@ if 1:   # Core functionality
         # dir is a pathlib.Path
         cwd = os.getcwd()
         os.chdir(dir)
-        Dbg(f"Processing '{dir}' directory")
+        Dbg(f"{t.dir}Processing '{dir}' directory")
         # Get index.txt file's content as a string
         s = open("index.txt", "rb").read().decode("UTF8")
         # Open the output file
@@ -175,7 +178,7 @@ if 1:   # Core functionality
         for item in items:
             item = item.strip()
             if item:
-                Dbg(item)
+                #Dbg(item)
                 doc = Doc(item, dir)
                 o.write(str(doc))
                 o.write("\n")
