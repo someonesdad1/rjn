@@ -24,6 +24,7 @@ if 1:   # Header
         import getopt
         import os
         from pathlib import Path as P
+        import re
         import sys
         from pprint import pprint as pp
         from textwrap import dedent
@@ -50,7 +51,7 @@ if 1:   # Header
             P("components"),
             P("measurement"),
         )
-        g.sep = "¶"   # Separator for index.txt entries (pilcrow, chr(0xb6)
+        g.sep = r"^--+$"   # Regex separator for index.txt entries
         g.top_readme = P("README.md")
         g.index = "index.html"  # Directory's HTML file
         # Output variables.  The index_files variable will be a list
@@ -61,24 +62,29 @@ if 1:   # Utility
         print(*msg, file=sys.stderr)
         exit(status)
     def Usage(status=1):
-        print(dedent(f'''
+        s = dedent(f'''
         Usage:  {sys.argv[0]} [options] [cmd]
           Build the readme and html files.  cmd is:
-              b   Build
-              n   Dry run (show what will happen), notify about missing stuff
-        '''))
+            b   Build
+            n   Dry run (show what will happen), notify about missing stuff
+        Options
+            -d  Debug output
+        ''').strip()
+        print(s)
         exit(status)
     def ParseCommandLine(d):
         d["-d"] = False     # Debug output
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "d")
+            opts, args = getopt.getopt(sys.argv[1:], "dh")
         except getopt.GetoptError as e:
             print(str(e))
             exit(1)
         for o, a in opts:
             if o[1] in list("d"):
                 d[o] = not d[o]
-        if 0 and not args:
+            elif o == "-h":
+                Usage()
+        if 1 and not args:
             Usage()
         return args
 if 1:   # Classes
@@ -91,15 +97,15 @@ if 1:   # Classes
             on the first line and the file's description on the remaining 
             lines.
             '''
-            dq = deque(content.split("\n"))
+            dq = deque(content.strip().split("\n"))
             Assert(len(dq) > 1)
             # Get PDF file's name
             self.dir = dir
             self.filename = dq.popleft().strip()
             # Make sure it exists
-            self.file = dir/self.filename
-            Assert(P(self.file.name).exists())
-            # Remove empty lines
+            self.file = P(self.filename).absolute()
+            Assert(self.file.exists())
+            # Remove empty or comment lines
             while dq:
                 line = dq[0].strip()
                 if not line or line[0] == "#":
@@ -120,6 +126,7 @@ if 1:   # Classes
                     break
             # Make sure we have at least one line
             Assert(self.descr)
+            Assert(self.filename)
             Dbg(f"PDF file:  {self.filename}")
             Dbg(f"Description:")
             for i in self.descr:
@@ -157,16 +164,18 @@ if 1:   # Core functionality
         # dir is a pathlib.Path
         cwd = os.getcwd()
         os.chdir(dir)
-        Dbg(f"Processing {dir} directory")
+        Dbg(f"Processing '{dir}' directory")
         # Get index.txt file's content as a string
-        s = open("index.txt").read()
+        s = open("index.txt", "rb").read().decode("UTF8")
         # Open the output file
         o = open("index.html", "w")
         o.write(HTML_header("Directory: {dir}"))
         # Separate into each PDF file's chunks
-        items = s.split(g.sep)
+        items = re.split(g.sep, s, flags=re.M)
         for item in items:
-            if item.strip():
+            item = item.strip()
+            if item:
+                Dbg(item)
                 doc = Doc(item, dir)
                 o.write(str(doc))
                 o.write("\n")

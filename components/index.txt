@@ -1,4 +1,5 @@
-¶555_Basics.pdf
+555_Basics.pdf
     2014 article on the 555 timer from EDN magazine.
-¶led_currents.png
+---------------------------------------------------------------------------
+led_currents.png
     Voltage-current curves for typical LEDs.

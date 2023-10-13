@@ -1,5 +1,6 @@
-¶AC_Line_Monitor.pdf
+AC_Line_Monitor.pdf
     Thoughts on measuring voltage and current on AC lines.
-¶Transformer_KVA.pdf
+---------------------------------------------------------------------------
+Transformer_KVA.pdf
     Why kVA are used instead of kW to rate alternators and 
     transformers.

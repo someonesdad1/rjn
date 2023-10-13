@@ -15,4 +15,3 @@ Each directory of PDF files must have an index.txt file containing the
 PDF file's name on a line beginning with "¶" (the pilcrow symbol).  The
 following lines are that PDF file's description lines.
 
-Constructed 4 Oct 2023
