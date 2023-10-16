@@ -2,6 +2,9 @@
  
 TODO
     - Remove /plib dependencies
+    - Install a logging system that sends output to a log file, showing
+      everything that is done.  This will be important to help with
+      debugging and making changes.
  
 Construct the rjn prototype github repository components
  
