@@ -1,3 +1,7 @@
 This is a text file created on 15 Jan 2024 to see whether 
 the WSL client's git could be set up to access this repository.
 This is a test, as I don't care if the repository is damaged.
+
+Thu Jan 18 19:58:27 MST 2024
+Accessed & changed to see if I now have a working ssh connection so I don't
+have to type the access token every time.
