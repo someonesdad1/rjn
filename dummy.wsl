@@ -5,3 +5,7 @@ This is a test, as I don't care if the repository is damaged.
 Thu Jan 18 19:58:27 MST 2024
 Accessed & changed to see if I now have a working ssh connection so I don't
 have to type the access token every time.
+
+Fri Jan 19 11:34:29 MST 2024
+Access changed via the github CLI and a newly-generated personal access
+token.
